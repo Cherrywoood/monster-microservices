@@ -1,20 +1,20 @@
+# Включить перезагрузку конфигурации filebeat
 filebeat.config:
   modules:
-    path: ${path.config}/modules.d/*.yml #?
+    path: ${path.config}/modules.d/*.yml
     reload.enabled: false
 
+# Автообнаружение позволяет обнаруживать изменения в системе и создавать новые модули
+# или входные данные, когда они происходят.
 filebeat.autodiscover:
   providers:
     # искать docker контейнер
     - type: docker
-      labels.dedot: true #?
+      labels.dedot: true
       templates:
         - condition:
             equals:
-              docker.container.labels.collect_logs_with_filebeat: "true" #?
-            contains:
-              # имя которого fastapi_app
-              docker.container.name: fastapi_app
+              docker.container.labels.collect_logs_with_filebeat: "true"
           # определим конфигурацию сбора для этого контейнера
           config:
             - type: container
@@ -31,12 +31,11 @@ filebeat.autodiscover:
                 overwrite_keys: true
            - add_docker_metadata: ~
 
-# Лог сообщения передаем в эластик серч
+# Какие выходные данные использовать при отправке данных, собранных beat.
 output.elasticsearch:
   protocol: "https"
-  hosts: ["192.168.204.132:9200"]
+  hosts: ["elasticsearch:9200"]
   username: 'elastic'
   password: 'elastic'
-  ssl.certificate_authorities: "/mnt/cert/http_ca.crt"
 setup.kibana:
-  host: "192.168.204.132:5601"
+  host: "kibana:5601"
