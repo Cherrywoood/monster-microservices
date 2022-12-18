@@ -1,23 +1,5 @@
-spring:
-  application:
-    name: user-service
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:monster_company}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:12345}
-  jpa:
-    show-sql: true
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    generate-ddl: false
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: false
-
 server:
-  port: 8081
+  port: ${SERVER_PORT:8084}
 
 eureka:
   client:
@@ -26,6 +8,33 @@ eureka:
   instance:
     prefer-ip-address: true
 
+spring:
+  application:
+    name: user-service
+  config:
+    import: optional:configserver:http://${CONFIG_HOST:localhost}:${CONFIG_PORT:8888}
 
-
-
+#3
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info,metrics
+  metrics:
+    enable:
+      jvm: true
+    export:
+      prometheus:
+        enabled: true
+        pushgateway:
+          enabled: true
+          push-rate: 5s
+          base-url: 192.168.123.148:9091
+          grouping-key:
+            application: ${spring.application.name}
+            instance: ${spring.application.name}:${server.port}
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+    tags:
+      application: ${spring.application.name}
