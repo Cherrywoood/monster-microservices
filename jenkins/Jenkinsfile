@@ -44,7 +44,7 @@ def build_gateway_service() {
 }
 
 def push_image(image) {
-    docker.withRegistry("${registry_host}", 'dockerhub_cherrywood') {
+    docker.withRegistry('', "dockerhub_cherrywood") {
         image.push()
         image.push("latest")
     }
@@ -70,25 +70,25 @@ node {
 
     stage('Build') {
         eureka = build_eureka_server()
-        config = build_config_server()
-        facade = build_auth_facade()
-        reactive_facade = build_auth_reactive_facade()
-        user = build_user_service()
-        child = build_child_service()
-        infection = build_infection_service()
-        monster = build_monster_service()
-        gateway = build_gateway_service()
+        //config = build_config_server()
+        //facade = build_auth_facade()
+        //reactive_facade = build_auth_reactive_facade()
+        //user = build_user_service()
+        //child = build_child_service()
+        //infection = build_infection_service()
+        //monster = build_monster_service()
+        //gateway = build_gateway_service()
     }
     stage('Push') {
         push_image(eureka)
-        push_image(config)
-        push_image(facade)
-        push_image(reactive_facade)
-        push_image(user)
-        push_image(child)
-        push_image(infection)
-        push_image(monster)
-        push_image(gateway)
+        //push_image(config)
+        //push_image(facade)
+        //push_image(reactive_facade)
+        //push_image(user)
+        //push_image(child)
+        //push_image(infection)
+        //push_image(monster)
+       // push_image(gateway)
     }
     if (currentBuild.currentResult == 'SUCCESS') {
         stage('Deploy') {
