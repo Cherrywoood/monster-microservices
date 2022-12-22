@@ -50,11 +50,6 @@ def push_image(image) {
     }
 }
 
-def deploy(image) {
-    sh "docker-compose -f docker-compose.yml pull ${image}"
-    sh "docker-compose -f docker-compose.yml up -d ${image}"
-}
-
 node {
     git credentialsId: 'gitlab_cherrywood', url: "${git_clone_url}", branch: 'jenkins'
 
@@ -70,38 +65,24 @@ node {
 
     stage('Build') {
         eureka = build_eureka_server()
-        //config = build_config_server()
-        //facade = build_auth_facade()
-        //reactive_facade = build_auth_reactive_facade()
-        //user = build_user_service()
-        //child = build_child_service()
-        //infection = build_infection_service()
-        //monster = build_monster_service()
-        //gateway = build_gateway_service()
+        config = build_config_server()
+        facade = build_auth_facade()
+        reactive_facade = build_auth_reactive_facade()
+        user = build_user_service()
+        child = build_child_service()
+        infection = build_infection_service()
+        monster = build_monster_service()
+        gateway = build_gateway_service()
     }
     stage('Push') {
         push_image(eureka)
-        //push_image(config)
-        //push_image(facade)
-        //push_image(reactive_facade)
-        //push_image(user)
-        //push_image(child)
-        //push_image(infection)
-        //push_image(monster)
-       // push_image(gateway)
-    }
-    if (currentBuild.currentResult == 'SUCCESS') {
-        stage('Deploy') {
-
-            //deploy("eureka")
-            //deploy("config")
-            //deploy("facade")
-            //deploy("reactive_facade")
-           // deploy("user")
-            //deploy("child")
-            //deploy("infection")
-            //deploy("monster")
-           // deploy("gateway")
-        }
+        push_image(config)
+        push_image(facade)
+        push_image(reactive_facade)
+        push_image(user)
+        push_image(child)
+        push_image(infection)
+        push_image(monster)
+        push_image(gateway)
     }
 }
