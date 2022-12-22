@@ -44,7 +44,7 @@ def build_gateway_service() {
 }
 
 def push_image(image) {
-    docker.withRegistry([ credentialsId: "dockerhub_cherrywood", url: "" ]) {
+    docker.withRegistry('', 'dckr_pat_00aX_9J9HiAY-oK-Pt1tklxQp_c') {
         image.push()
         image.push("latest")
     }
