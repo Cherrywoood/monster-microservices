@@ -92,19 +92,4 @@ node {
         push_image(gateway)
     }
 
-     /* if (currentBuild.currentResult == 'SUCCESS') {
-            stage('Deploy') {
-
-                deploy("eureka")
-                deploy("config")
-                deploy("facade")
-                deploy("reactive_facade")
-                deploy("user")
-                deploy("child")
-                deploy("infection")
-                deploy("monster")
-                deploy("gateway")
-            }
-        } */
-
 }
