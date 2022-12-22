@@ -3,7 +3,7 @@ git_clone_url = "http://labvm-42-05.itmo-lab.cosm-lab.science/team-7/monster-bac
 registry_host = "https://registry.hub.docker.com"
 
 def build(image_name, path) {
-    image = docker.build("cherrywood69/monster_company/${image_name}:${tag}", "-f ./${path}/Dockerfile ./${path}")
+    image = docker.build("cherrywood69/${image_name}:${tag}", "-f ./${path}/Dockerfile ./${path}")
     return image
 }
 
@@ -50,6 +50,12 @@ def push_image(image) {
     }
 }
 
+def deploy(image) {
+    sh "docker-compose -f docker-compose.yml pull ${image}"
+    sh "docker-compose -f docker-compose.yml up -d ${image}"
+}
+
+
 node {
     git credentialsId: 'gitlab_cherrywood', url: "${git_clone_url}", branch: 'jenkins'
 
@@ -85,4 +91,20 @@ node {
         push_image(monster)
         push_image(gateway)
     }
+
+     /* if (currentBuild.currentResult == 'SUCCESS') {
+            stage('Deploy') {
+
+                deploy("eureka")
+                deploy("config")
+                deploy("facade")
+                deploy("reactive_facade")
+                deploy("user")
+                deploy("child")
+                deploy("infection")
+                deploy("monster")
+                deploy("gateway")
+            }
+        } */
+
 }
