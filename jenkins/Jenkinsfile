@@ -3,7 +3,7 @@ git_clone_url = "http://labvm-42-05.itmo-lab.cosm-lab.science/team-7/monster-bac
 registry_host = "https://registry.hub.docker.com"
 
 def build(image_name, path) {
-    image = docker.build("cherrywood69/${image_name}:${tag}", "-f ./${path}/Dockerfile ./${path}")
+    image = docker.build("${image_name}:${tag}", "-f ./${path}/Dockerfile ./${path}")
     return image
 }
 
