@@ -46,7 +46,7 @@ def build_gateway_service() {
 def push_image(image) {
     docker.withRegistry('', 'dockerhub_cherrywood') {
         image.push()
-        image.push("latest")
+       // image.push("latest")
     }
 }
 
