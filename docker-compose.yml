@@ -1,0 +1,172 @@
+version: "3.7"
+
+services:
+  monster_company_pg:
+    image: postgres:14
+    container_name: monster_company_pg
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: monster_company
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ./postgres/db:/var/lib/postgresql/data
+
+  monster_db:
+    image: postgres:14
+    container_name: monster_db
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: monsters
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - ../monster-service/.deploy/postgres/db:/var/lib/postgresql/data
+      - ../monster-service/.deploy/postgres/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+
+  eureka-server:
+    image: cherrywood69/eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    expose:
+      - "8761"
+    environment:
+      SERVER_PORT: 8761
+
+  config-server:
+    image: cherrywood69/config-server:latest
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      SERVER_PORT: 8888
+      eureka.client.service-url.defaultZone: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+
+  gateway_service:
+    image: cherrywood69/gateway-service:latest
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      CONFIG_HOST: config-server
+      CONFIG_PORT: 8888
+      eureka.client.service-url.defaultZone: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+      - config-server
+
+  auth-facade:
+    image: cherrywood69/auth-facade:latest
+    container_name: auth-facade
+    ports:
+      - "8086:8086"
+    environment:
+      SERVER_PORT: 8086
+      eureka.client.service-url.defaultZone: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+      - config-server
+
+  auth-reactive-facade:
+    image: cherrywood69/auth-reactive-facade:latest
+    container_name: auth-reactive-facade
+    ports:
+      - "8087:8087"
+    environment:
+      SERVER_PORT: 8087
+      eureka.client.service-url.defaultZone: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+      - config-server
+
+  user-service:
+    image: cherrywood69/user-service:latest
+    container_name: user-service
+    ports:
+      - "8084:8084"
+    environment:
+      SERVER_PORT: 8084
+      CONFIG_HOST: config-server
+      CONFIG_PORT: 8888
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      spring.r2dbc.url: r2dbc:postgresql://monster_company_pg/monster_company?currentSchema=user_info
+      spring.liquibase.url: jdbc:postgresql://monster_company_pg:5432/monster_company?currentSchema=user_info
+      eureka.client.service-url.defaultZone: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+      - config-server
+      - monster_company_pg
+
+  child-service:
+    image: cherrywood69/child-service:latest
+    container_name: child-service
+    ports:
+      - "8085:8085"
+    environment:
+      SERVER_PORT: 8085
+      CONFIG_HOST: config-server
+      CONFIG_PORT: 8888
+      POSTGRES_HOST: monster_company_pg
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: monster_company
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      eureka.client.service-url.defaultZone: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+      - config-server
+      - monster_company_pg
+
+  monster-service:
+    image: cherrywood69/monster-service:latest
+    container_name: monster-service
+    ports:
+      - "8082:8082"
+    environment:
+      SERVER_PORT: 8082
+      CONFIG_HOST: config-server
+      CONFIG_PORT: 8888
+      POSTGRES_HOST: monster_db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: monsters
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      eureka.client.service-url.defaultZone: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+      - config-server
+      - monster_db
+
+  infection-service:
+    image: cherrywood69/infection-service:latest
+    container_name: infection-service
+    ports:
+      - "8083:8083"
+    environment:
+      SERVER_PORT: 8083
+      CONFIG_HOST: config-server
+      CONFIG_PORT: 8888
+      POSTGRES_HOST: monster_company_pg
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: monster_company
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      eureka.client.service-url.defaultZone: http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+      - config-server
+      - monster_company_pg
+
+
+
+
+
